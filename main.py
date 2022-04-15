@@ -17,6 +17,22 @@ class Window:
         return ((self.time) >= (obj.time))
     def __eq__(self, obj):
         return (self.time == obj.time)
+    
+class Customer:
+    def __init__(self, arrivalTime: float, workUnits: float):
+        self.arrivalTime = arrivalTime
+        self.workUnits = workUnits
+        
+    def __lt__(self, obj):
+        return ((self.arrivalTime) < (obj.arrivalTime))
+    def __gt__(self, obj):
+        return ((self.arrivalTime) > (obj.arrivalTime))
+    def __le__(self, obj):
+        return ((self.arrivalTime) <= (obj.arrivalTime))
+    def __ge__(self, obj):
+        return ((self.arrivalTime) >= (obj.arrivalTime))
+    def __eq__(self, obj):
+        return (self.arrivalTime == obj.arrivalTime)
 
 
 def main():
@@ -25,9 +41,22 @@ def main():
     MAX_ARRIVAL_TIME = 8
     NUM_WINDOWS = 10
     WORK_UNITS_PER_HOUR = 10
+    BANK_WORKING_HOURS = 8
     
     CustomerQueue = generate_customers(NUM_CUSTOMERS, MAX_ARRIVAL_TIME)
     WindowQueue = PriorityQueue()
+    
+    for i in range(NUM_WINDOWS):
+        WindowQueue.put(Window(efficiency=WORK_UNITS_PER_HOUR))
+        
+    while not CustomerQueue.empty():
+        curWindow = WindowQueue.get()
+        curCustomer = CustomerQueue.get()
+        # bank is closed after 8 hours
+        if curWindow.time > BANK_WORKING_HOURS:
+            break
+        
+        
     
     
     for i in range(NUM_WINDOWS):
@@ -72,7 +101,7 @@ def generate_customers(numCustomers: int, maxArrivalTime: float,
     for i in range(numCustomers):
         # randomly generate work units and arrival time
         customerArirvalTime = np.random.uniform(0, maxArrivalTime)
-        customerQueue.put((customerArirvalTime, workUnits[i]))
+        customerQueue.put(Customer(customerArirvalTime, workUnits[i]))
 
     return customerQueue
 
