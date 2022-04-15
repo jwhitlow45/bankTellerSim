@@ -2,35 +2,45 @@ import numpy as np
 from scipy.stats import truncnorm
 from queue import PriorityQueue
 
+
 class Window:
     def __init__(self, time: float = 0, efficiency: float = 10):
         self.time = time
         self.efficiency = efficiency
-        
+
     def __lt__(self, obj):
         return ((self.time) < (obj.time))
+
     def __gt__(self, obj):
         return ((self.time) > (obj.time))
+
     def __le__(self, obj):
         return ((self.time) <= (obj.time))
+
     def __ge__(self, obj):
         return ((self.time) >= (obj.time))
+
     def __eq__(self, obj):
         return (self.time == obj.time)
-    
+
+
 class Customer:
     def __init__(self, arrivalTime: float, workUnits: float):
         self.arrivalTime = arrivalTime
         self.workUnits = workUnits
-        
+
     def __lt__(self, obj):
         return ((self.arrivalTime) < (obj.arrivalTime))
+
     def __gt__(self, obj):
         return ((self.arrivalTime) > (obj.arrivalTime))
+
     def __le__(self, obj):
         return ((self.arrivalTime) <= (obj.arrivalTime))
+
     def __ge__(self, obj):
         return ((self.arrivalTime) >= (obj.arrivalTime))
+
     def __eq__(self, obj):
         return (self.arrivalTime == obj.arrivalTime)
 
@@ -42,27 +52,32 @@ def main():
     NUM_WINDOWS = 10
     WORK_UNITS_PER_HOUR = 10
     BANK_WORKING_HOURS = 8
-    
+
     CustomerQueue = generate_customers(NUM_CUSTOMERS, MAX_ARRIVAL_TIME)
     WindowQueue = PriorityQueue()
-    
+
     for i in range(NUM_WINDOWS):
         WindowQueue.put(Window(efficiency=WORK_UNITS_PER_HOUR))
-        
+
     while not CustomerQueue.empty():
         curWindow = WindowQueue.get()
         curCustomer = CustomerQueue.get()
-        # bank is closed after 8 hours
-        if curWindow.time > BANK_WORKING_HOURS:
+        completedWorkTime = curWindow.time + curCustomer.workUnits / curWindow.efficiency
+        # bank is closed after working hours hours, so stop helping customers
+        # if a work request would go into after hours
+        if completedWorkTime > BANK_WORKING_HOURS:
+            CustomerQueue.put(curCustomer)
             break
-        
-        
-    
-    
+
+        curCustomerWaitTime = curWindow.time - curCustomer.arrivalTime
+
+        # put window back onto queue with updated time
+        curWindow.time = completedWorkTime
+        WindowQueue.put(curWindow)
+
     for i in range(NUM_WINDOWS):
-        # total time, 
+        # total time,
         WindowQueue.put(())
-    
 
 
 def get_truncated_norm(mean: float, stddev: float, low: float, high: float):
