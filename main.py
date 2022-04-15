@@ -4,6 +4,7 @@ from queue import PriorityQueue
 from datetime import datetime
 from typing import List, Tuple
 
+
 class Window:
     def __init__(self, time: float = 0, efficiency: float = 10):
         self.time = time
@@ -73,8 +74,9 @@ def main():
 
         for i in range(NUM_DAYS_SIMULATED):
             # generate customers
-            CustomerQueue = generate_customers(NUM_CUSTOMERS, BANK_WORKING_HOURS)
-            
+            CustomerQueue = generate_customers(
+                NUM_CUSTOMERS, BANK_WORKING_HOURS)
+
             # create separate queue for light requests
             TempQueue = PriorityQueue()
             LightCustomerQueue = PriorityQueue()
@@ -84,18 +86,18 @@ def main():
                 else:
                     LightCustomerQueue.put(Customer)
             CustomerQueue = TempQueue
-            
+
             # simulate normal lines
             waitTimeList, numUnhelpedCustomers = simulate_day(
                 CustomerQueue, NUM_WINDOWS, BANK_WORKING_HOURS, TELLER_EFFICIENCY)
             waitTimes += waitTimeList
             unhelpedCustomers.append(numUnhelpedCustomers)
-            
+
             waitTimeList, numUnhelpedCustomers = simulate_day(
                 LightCustomerQueue, 1, BANK_WORKING_HOURS, TELLER_EFFICIENCY)
             waitTimes += waitTimeList
             unhelpedCustomers.append(numUnhelpedCustomers)
-            
+
         avgTimeWaiting = sum(waitTimes) / len(waitTimes)
         avgUnhelpedCustomers = sum(unhelpedCustomers) / len(unhelpedCustomers)
 
