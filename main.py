@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import truncnorm
 from queue import PriorityQueue
+from datetime import datetime
 
 
 class Window:
@@ -53,58 +54,66 @@ class Customer:
 
 def main():
     # hyperparameters
-    NUM_DAYS_SIMULATED = 1000
+    NUM_DAYS_SIMULATED = 10000
     NUM_CUSTOMERS = 160
-    MAX_ARRIVAL_TIME = 8
     NUM_WINDOWS = 10
     WORK_UNITS_PER_HOUR = 10
     BANK_WORKING_HOURS = 8
+    
+    lines = []
+    headers = 'num days simulated,num customers,bank working hours,num windows,work units per hour per window,avg wait time,avg unhelped customers\n'
+    lines.append(headers)
+    
+    startTime = datetime.now()
+    
+    for NUM_WINDOWS in [9, 10, 11]:
+        waitTimes = []
+        unhelpedCustomers = []
+        
+        for i in range(NUM_DAYS_SIMULATED):
+            # create windows
+            WindowQueue = PriorityQueue()
+            for i in range(NUM_WINDOWS):
+                WindowQueue.put(Window(efficiency=WORK_UNITS_PER_HOUR))
 
-    waitTimes = []
-    unhelpedCustomers = []
+            # create customers
+            CustomerQueue = generate_customers(NUM_CUSTOMERS, BANK_WORKING_HOURS)
 
-    for i in range(NUM_DAYS_SIMULATED):
-        # create windows
-        WindowQueue = PriorityQueue()
-        for i in range(NUM_WINDOWS):
-            WindowQueue.put(Window(efficiency=WORK_UNITS_PER_HOUR))
+            while not CustomerQueue.empty():
+                curWindow = WindowQueue.get()
+                curCustomer = CustomerQueue.get()
 
-        # create customers
-        CustomerQueue = generate_customers(NUM_CUSTOMERS, MAX_ARRIVAL_TIME)
+                # update time to match customer arrival time if window has been sitting empty
+                if curWindow.time < curCustomer.arrivalTime:
+                    curWindow.time = curCustomer.arrivalTime
 
-        while not CustomerQueue.empty():
-            curWindow = WindowQueue.get()
-            curCustomer = CustomerQueue.get()
-            print(curWindow)
-            print(curCustomer)
+                completedWorkTime = curWindow.time + curCustomer.workUnits / curWindow.efficiency
+                # bank is closed after working hours hours, so stop helping customers
+                # if a work request would go into after hours
+                if completedWorkTime > BANK_WORKING_HOURS:
+                    CustomerQueue.put(curCustomer)
+                    break
 
-            # update time to match customer arrival time if window has been sitting empty
-            if curWindow.time < curCustomer.arrivalTime:
-                curWindow.time = curCustomer.arrivalTime
+                curCustomerWaitTime = curWindow.time - curCustomer.arrivalTime
+                waitTimes.append(curCustomerWaitTime)
 
-            completedWorkTime = curWindow.time + curCustomer.workUnits / curWindow.efficiency
-            # bank is closed after working hours hours, so stop helping customers
-            # if a work request would go into after hours
-            if completedWorkTime > BANK_WORKING_HOURS:
-                CustomerQueue.put(curCustomer)
-                break
+                # put window back onto queue with updated time
+                curWindow.time = completedWorkTime
+                WindowQueue.put(curWindow)
 
-            curCustomerWaitTime = curWindow.time - curCustomer.arrivalTime
-            waitTimes.append(curCustomerWaitTime)
+            unhelpedCustomers.append(len(CustomerQueue.queue))
 
-            # put window back onto queue with updated time
-            curWindow.time = completedWorkTime
-            WindowQueue.put(curWindow)
-            print(f'Customer wait time: {curCustomerWaitTime}')
-            print(f'Completed work time: {completedWorkTime}')
 
-        print(f'Unhelped customers: {len(CustomerQueue.queue)}')
-        unhelpedCustomers.append(len(CustomerQueue.queue))
-
-    print()
-    print(f'Average wait time: {sum(waitTimes) / len(waitTimes)}')
-    print(
-        f'Average unhelped customers: {sum(unhelpedCustomers) / len(unhelpedCustomers)}')
+        avgTimeWaiting = sum(waitTimes) / len(waitTimes)
+        avgUnhelpedCustomers = sum(unhelpedCustomers) / len(unhelpedCustomers)
+        
+        line = f'{NUM_DAYS_SIMULATED},{NUM_CUSTOMERS},{BANK_WORKING_HOURS},{NUM_WINDOWS},{WORK_UNITS_PER_HOUR},{avgTimeWaiting},{avgUnhelpedCustomers}\n'
+        lines.append(line)
+        
+    print(datetime.now() - startTime)
+        
+    with open('results_short_queue.csv', 'w') as FILE:
+        FILE.writelines(lines)
 
 
 def get_truncated_norm(mean: float, stddev: float, low: float, high: float):
