@@ -24,7 +24,7 @@ class Window:
         return (self.time == obj.time)
 
     def __repr__(self):
-        print(f'[WINDOW] Time: {self.time}, Eff: {self.efficiency}')
+        return f'[WINDOW] Time: {self.time}, Eff: {self.efficiency}'
 
 
 class Customer:
@@ -48,7 +48,7 @@ class Customer:
         return (self.arrivalTime == obj.arrivalTime)
 
     def __repr__(self):
-        print(f'[WINDOW] Time: {self.arrivalTime}, Eff: {self.workUnits}')
+        return f'[CUSTOMER] Arrival Time: {self.arrivalTime}, Work Units: {self.workUnits}'
 
 
 def main():
@@ -68,6 +68,8 @@ def main():
     while not CustomerQueue.empty():
         curWindow = WindowQueue.get()
         curCustomer = CustomerQueue.get()
+        print(curWindow)
+        print(curCustomer)
         completedWorkTime = curWindow.time + curCustomer.workUnits / curWindow.efficiency
         # bank is closed after working hours hours, so stop helping customers
         # if a work request would go into after hours
@@ -80,6 +82,10 @@ def main():
         # put window back onto queue with updated time
         curWindow.time = completedWorkTime
         WindowQueue.put(curWindow)
+        print(f'Customer wait time: {curCustomerWaitTime}')
+        print(f'Completed work time: {completedWorkTime}')
+        
+    print(f'Unhelped customers: {len(CustomerQueue.queue)}')
 
     for i in range(NUM_WINDOWS):
         # total time,
