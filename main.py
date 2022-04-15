@@ -70,11 +70,11 @@ def main():
         curCustomer = CustomerQueue.get()
         print(curWindow)
         print(curCustomer)
-        
+
         # update time to match customer arrival time if window has been sitting empty
         if curWindow.time < curCustomer.arrivalTime:
             curWindow.time = curCustomer.arrivalTime
-            
+
         completedWorkTime = curWindow.time + curCustomer.workUnits / curWindow.efficiency
         # bank is closed after working hours hours, so stop helping customers
         # if a work request would go into after hours
@@ -89,7 +89,7 @@ def main():
         WindowQueue.put(curWindow)
         print(f'Customer wait time: {curCustomerWaitTime}')
         print(f'Completed work time: {completedWorkTime}')
-        
+
     print(f'Unhelped customers: {len(CustomerQueue.queue)}')
 
 
