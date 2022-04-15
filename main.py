@@ -23,6 +23,9 @@ class Window:
     def __eq__(self, obj):
         return (self.time == obj.time)
 
+    def __repr__(self):
+        print(f'[WINDOW] Time: {self.time}, Eff: {self.efficiency}')
+
 
 class Customer:
     def __init__(self, arrivalTime: float, workUnits: float):
@@ -43,6 +46,9 @@ class Customer:
 
     def __eq__(self, obj):
         return (self.arrivalTime == obj.arrivalTime)
+
+    def __repr__(self):
+        print(f'[WINDOW] Time: {self.arrivalTime}, Eff: {self.workUnits}')
 
 
 def main():
