@@ -2,12 +2,38 @@ import numpy as np
 from scipy.stats import truncnorm
 from queue import PriorityQueue
 
+class Window:
+    def __init__(self, time: float = 0, efficiency: float = 10):
+        self.time = time
+        self.efficiency = efficiency
+        
+    def __lt__(self, obj):
+        return ((self.time) < (obj.time))
+    def __gt__(self, obj):
+        return ((self.time) > (obj.time))
+    def __le__(self, obj):
+        return ((self.time) <= (obj.time))
+    def __ge__(self, obj):
+        return ((self.time) >= (obj.time))
+    def __eq__(self, obj):
+        return (self.time == obj.time)
+
 
 def main():
     # hyperparameters
     NUM_CUSTOMERS = 160
     MAX_ARRIVAL_TIME = 8
+    NUM_WINDOWS = 10
+    WORK_UNITS_PER_HOUR = 10
+    
     CustomerQueue = generate_customers(NUM_CUSTOMERS, MAX_ARRIVAL_TIME)
+    WindowQueue = PriorityQueue()
+    
+    
+    for i in range(NUM_WINDOWS):
+        # total time, 
+        WindowQueue.put(())
+    
 
 
 def get_truncated_norm(mean: float, stddev: float, low: float, high: float):
