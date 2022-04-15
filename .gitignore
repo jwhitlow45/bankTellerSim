@@ -1,0 +1,13 @@
+# Compiled/DLL files for python (system generated)
+__pycache__/
+*.py[cod]
+*$py.class
+# Virtual environment
+.venv/
+# MacOS Indexing Files
+.DS_Store
+# VSCode config
+.vscode/
+
+# Test Outputs
+*.csv
